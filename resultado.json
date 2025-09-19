@@ -1,0 +1,10 @@
+[{
+"Resultado":"A",
+"Nro":32510,
+"CAE":"75381773527531",
+"Vto":"20250929",
+"EmisionTipo":"CAE",
+"Reproceso":"",
+"ErrMsg":"",
+"Mensaje":"Se asign\u00f3 CAE pero con advertencias. Motivos: 10245: El campo Condicion Frente al IVA del receptor resultara obligatorio conforme lo reglamentado por la Resoluci\u00f3n General Nro 5616. Para mas informacion consular metodo FEParamGetCondicionIvaReceptor"
+}]
