@@ -34,6 +34,8 @@ include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "libs" . DIRECTORY_SEPARA
 include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "libs" . DIRECTORY_SEPARATOR . "db.php"); // esta libreria es la que se encarga de conectar a la base de datos y ejecutar los stored procedures
 include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "libs" . DIRECTORY_SEPARATOR . "funciones.php"); // esta libreria es la que se encarga de conectar a la base de datos y ejecutar los stored procedures
 include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "fpdf" . DIRECTORY_SEPARATOR . "fpdf.php"); // esta libreria es la que se encarga de llamar a los servicios
+include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "phpqrcode" . DIRECTORY_SEPARATOR . "qrlib.php"); // esta libreria es la que se encarga de llamar a los servicios
+  
 date_default_timezone_set("America/Buenos_Aires"); // se establece la zona horaria de Buenos Aires
 
 // esta api siempre responde en formato JSON
@@ -71,7 +73,7 @@ error_reporting(0);
 
 
 try {
-
+    QRcode::png('PHP QR Code :)', 'test.png', 'L', 4, 2);
     $data = null;
 
     // Si el request es GET, uso las variable $_GET

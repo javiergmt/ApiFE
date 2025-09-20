@@ -4,35 +4,56 @@ error_reporting(0);
 
 class factElect
 {
+function getQR() {
+    include "qrlib.php";
+    QRcode::png('PHP QR Code :)', 'test.png', 'L', 4, 2);
+
+    QRcode::png('PHP QR Code :)');
+}
 
 function getPdf(){
+ 
+
     $pdf = new FPDF( 'P', 'mm', 'A4' );
     $pdf->SetAutoPagebreak(False);
     $pdf->SetMargins(0,0,0);
     $pdf->AddPage();
-    // Numero de paginas
-    //$pdf->SetXY( 120, 5 ); $pdf->SetFont( "Arial", "B", 12 ); $pdf->Cell( 160, 8, $num_page . '/' . $nb_page, 0, 0, 'C');
-    $tipo_comp = "FACTURA";
-    $letra = "A";
-    $cod_comp = "COD. 11";
-    $copia = "ORIGINAL";
-    $num_fact = "Comp. Nro. 00000001";
-    $punto_vta = "Punto de Venta 0001";
-    $fecha = "01/01/2024";
-    $cuitEmisor = "CUIT 20-12345678-9";
-    $tipoIvaEmisor = "Condicion frente al Iva: IVA Responsable Inscripto";
-    $ingresosBrutos = "Ingresos Brutos 123-456789-0";
-    $fechaInicioActividades = "Fecha de Inicio de Actividades: 01/01/2020";
-    $domicilio = "Domicilio Comercial: Calle Falsa 123";
-    $razonSocial = "Razon Social: Cliente de Prueba S.A.";
 
+    // Datos Factura
+    $tipoComp = "FACTURA";
+    $letra = "A";
+    $codComp = "COD. 11";
+    $copia = "ORIGINAL";
+    $numFact = "00000001";
+    $puntoVta = "0001";
+    $fecha = "01/01/2024";
+    // Datos Emisor
+    $emisor = "Javier Martinez";
+    $cuitEmisor = "20-12345678-9";
+    $tipoIvaEmisor = "IVA Responsable Inscripto";
+    $ingresosBrutos = "123-456789-0";
+    $fechaInicioActividades = "01/01/2020";
+    $domicilio = "Calle Falsa 123";
+    $razonSocial = "Cliente de Prueba S.A.";
+    $nombreFantasia = "RestoSoft";
+    // Datos Cliente
     $clienteNombre = "Cliente de Prueba S.A.";
     $clienteDomicilio = "Calle Falsa 456";
-    $clienteCuit = "CUIT 20-98765432-1";
+    $clienteCuit = "20-98765432-1";
     $clienteTipoIva = "IVA Responsable Inscripto";
-   
+    // Datos Totales
+    $neto = "1000.00";
+    $iva = "210.00";
+    $total = "1210.00";
+    // Datos Certificado
+    $cae = "12345678901234";
+    $vtoCae = "01/02/2024";
+    // Detalle
+    $detalle = array(
+        array("codigo" => "001", "descripcion" => "Abono Abril 2025", "cantidad" => "2", "unidad" => "unidades", "precioUnitario" => "500.00", "bonificacion" => "0", "importeBonificacion" => "0.00", "subtotal" => "1000.00"),
+        array("codigo" => "002", "descripcion" => "1er Cuatrimestre 2026 Fact Elect", "cantidad" => "1", "unidad" => "unidades", "precioUnitario" => "210.00", "bonificacion" => "0", "importeBonificacion" => "0.00", "subtotal" => "210.00"),
+    );
 
-    $emisor = "Javier Martinez";
     //$pdf->SetLineWidth(0.1); $pdf->SetFillColor(192); $pdf->Rect(120, 15, 85, 8, "DF");
 
     $pdf->Line(5, 8, 205, 8);
@@ -42,24 +63,27 @@ function getPdf(){
     $pdf->Line(95, 32, 112, 32);
     $pdf->Line(103, 32, 103, 65);
 
+    $pdf->Line(5, 8, 5, 100);
+    $pdf->Line(205, 8, 205, 100);
+
     $pdf->SetXY( 90, 10 ); $pdf->SetFont( "Arial", "B", 15 ); $pdf->Cell( 66, 8, $copia, 0, 0, 'L');
     // Lado Derecho
     $pdf->SetXY( 10, 20 ); $pdf->SetFont( "Arial", "B", 10 ); $pdf->Cell( 66, 8, $emisor, 0, 0, 'L');
-    $pdf->SetXY( 10, 45 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 66, 8, $razonSocial, 0, 0, 'L');
-    $pdf->SetXY( 10, 50 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 66, 8, $domicilio, 0, 0, 'L');
-    $pdf->SetXY( 10, 55 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 66, 8, $tipoIvaEmisor, 0, 0, 'L');
+    $pdf->SetXY( 10, 45 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 66, 8, 'Razon Social: '.$razonSocial, 0, 0, 'L');
+    $pdf->SetXY( 10, 50 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 66, 8, 'Domicilio Comercial: '.$domicilio, 0, 0, 'L');
+    $pdf->SetXY( 10, 55 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 66, 8, 'Condicion frente al Iva: '.$tipoIvaEmisor, 0, 0, 'L');
     // Lado Izquierdo
 
     $pdf->SetXY( 100, 20 ); $pdf->SetFont( "Arial", "B", 18 ); $pdf->Cell( 66, 8, $letra, 0, 0, 'L');
-    $pdf->SetXY( 98, 25 ); $pdf->SetFont( "Arial", "B", 6 ); $pdf->Cell( 66, 8, $cod_comp, 0, 0, 'L');
-    $pdf->SetXY( 120, 20 ); $pdf->SetFont( "Arial", "B", 18 ); $pdf->Cell( 85, 8, $tipo_comp, 0, 0, 'L');
-    $pdf->SetXY( 120, 30 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, $punto_vta, 0, 0, 'L');
-    $pdf->SetXY( 160, 30 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, $num_fact, 0, 0, 'L');
+    $pdf->SetXY( 98, 25 ); $pdf->SetFont( "Arial", "B", 6 ); $pdf->Cell( 66, 8, $codComp, 0, 0, 'L');
+    $pdf->SetXY( 120, 20 ); $pdf->SetFont( "Arial", "B", 18 ); $pdf->Cell( 85, 8, $tipoComp, 0, 0, 'L');
+    $pdf->SetXY( 120, 30 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Punto de Venta: '.$puntoVta, 0, 0, 'L');
+    $pdf->SetXY( 160, 30 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Comp. Nro. '.$numFact, 0, 0, 'L');
     $pdf->SetXY( 120, 35 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Fecha: ' . $fecha, 0, 0, 'L');
 
-    $pdf->SetXY( 120, 45 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, $cuitEmisor, 0, 0, 'L');
-    $pdf->SetXY( 120, 50 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, $ingresosBrutos, 0, 0, 'L');
-    $pdf->SetXY( 120, 55 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, $fechaInicioActividades, 0, 0, 'L');
+    $pdf->SetXY( 120, 45 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, 'CUIT: '.$cuitEmisor, 0, 0, 'L');
+    $pdf->SetXY( 120, 50 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, 'Ingresos Brutos: '.$ingresosBrutos, 0, 0, 'L');
+    $pdf->SetXY( 120, 55 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, 'Fecha de Inicio de Actividades: '.$fechaInicioActividades, 0, 0, 'L');
 
 
     $pdf->Line(5, 65, 205, 65);
@@ -71,7 +95,7 @@ function getPdf(){
     $pdf->SetXY( 170, 65 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, $fecha, 0, 0, 'L');
 
     $pdf->Line(5, 75, 205, 75);
-    $pdf->SetXY( 10, 78 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, $clienteCuit, 0, 0, 'L');
+    $pdf->SetXY( 10, 78 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'CUIT: '.$clienteCuit, 0, 0, 'L');
     $pdf->SetXY( 55, 78 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Apeellido Nombre / Razon social:', 0, 0, 'L');
     $pdf->SetXY( 105, 78 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, $clienteNombre, 0, 0, 'L');
     $pdf->SetXY( 10, 85 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Condicion frente al Iva:', 0, 0, 'L');
@@ -97,6 +121,46 @@ function getPdf(){
     $pdf->SetXY( 162, 101 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Imp. Bonif.', 0, 0, 'L');
     $pdf->Line(180, 102, 180, 107);
     $pdf->SetXY( 188, 101 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Subtotal', 0, 0, 'L');
+
+    $linea= 102;
+    foreach ($detalle as $item) {
+        $pdf->SetLineWidth(0.1); 
+        $pdf->SetXY( 8, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, $item['codigo'], 0, 0, 'L');
+        $pdf->SetXY( 28, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, $item['descripcion'], 0, 0, 'L');
+        $pdf->SetXY( 78, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, $item['cantidad'], 0, 0, 'L');
+        $pdf->SetXY( 98, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, $item['unidad'], 0, 0, 'L');
+        $pdf->SetXY( 117, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, number_format($item['precioUnitario'],2,",","."), 0, 0, 'R');
+        $pdf->SetXY( 142, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, number_format($item['bonificacion'],2,",","."), 0, 0, 'R');
+        $pdf->SetXY( 162, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, number_format($item['importeBonificacion'],2,",","."), 0, 0, 'R');
+        $pdf->SetXY( 188, $linea+5 ); $pdf->SetFont( "Arial", "", 7 ); $pdf->Cell( 85, 8, number_format($item['subtotal'],2,",","."), 0, 0, 'R');
+        $linea += 4;
+    }
+
+    $pdf->Line(5, 210, 205, 210);
+    $pdf->Line(5, 250, 205, 250);
+    $pdf->Line(5, 210, 5, 250);
+    $pdf->Line(205, 210, 205, 250);
+
+    //$pdf->SetXY( 188, 210 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Subtotal', 0, 0, 'L');
+    //$pdf->SetXY( 188, 218 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Bonif', 0, 0, 'L');
+    $pdf->SetXY( 158, 226 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 17, 8,  "Subtotal: $", 0, 0, 'R');
+    $pdf->SetXY( 188, 226 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 17, 8,  number_format($total,2,",","."), 0, 0, 'R');
+    $pdf->SetXY( 158, 234 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 17, 8,  "Importe Otros Tributos: $", 0, 0, 'R');
+    $pdf->SetXY( 188, 234 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 17, 8, number_format($iva,2,",","."), 0, 0, 'R');
+    $pdf->SetXY( 158, 242 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 17, 8,  "Importe Total: $", 0, 0, 'R');
+    $pdf->SetXY( 188, 242 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 17, 8, number_format($total,2,",","."), 0, 0, 'R');
+
+    $pdf->SetXY( 158, 252 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 85, 8,  "CAE: ".$cae, 0, 0, 'L');
+    $pdf->SetXY( 128, 258 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 85, 8,  "Fecha Vencimiento CAE: ".$vtoCae, 0, 0, 'L');
+    
+    // Generacion del QR
+    $qrClave = '{"ver":1,"fecha": "'.$fecha.'","cuit":"'.$cuitEmisor.'","ptoVta":'.$puntoVta.',"tipoCmp":'.$codComp.',"nroCmp":'.$numFact.',"importe":'.$total.',
+"moneda":"PES","ctz":1,"tipoDocRec":99,"nroDocRec":0,"tipoCodAut":"E","codAut":'.$cae.'}';
+    $qrClave =  "https://www.arca.gob.ar/fe/qr/?p=".base64_encode($qrClave);
+    QRcode::png($qrClave, 'QR.png', 'L', 4, 2);
+    $pdf->Image('QR.png', 10, 252, 35, 35);
+
+    //$pdf->SetXY( 10, 150 ); $pdf->SetFont( "Arial", "B", 4); $pdf->Cell( 85, 8, $qrClave, 0, 0, 'L');
 
     $pdf->Output('F','factura.pdf');
     return "factura.pdf";
@@ -364,6 +428,8 @@ try {
             'Nro' => $WSFEv1->CbteNro, 
             'CAE' => $cae, 
             'Vto' => $WSFEv1->Vencimiento, 
+            'TipoComp' => $tipo_cbte,
+            'Tipodoc' => $tipo_doc,
             'EmisionTipo' => $WSFEv1->EmisionTipo,
             'Reproceso' => $WSFEv1->Reproceso,
             'ErrMsg' => $WSFEv1->ErrMsg,
