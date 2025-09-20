@@ -1,61 +1,81 @@
 <?php
 
+
 error_reporting(0);
 
 class factElect
 {
-function getQR() {
-    include "qrlib.php";
-    QRcode::png('PHP QR Code :)', 'test.png', 'L', 4, 2);
 
-    QRcode::png('PHP QR Code :)');
+function facturaElectronica(string $crt,string $key,string $cuitEmisor,string $tipoIvaEmisor,string $ptoVta,string $clienteTipoIva,string $clienteCuit,
+    float $total, float $neto, float $iva,string $tipo,string $fecha,
+    string $emisor , string $ingresosBrutos, string $fechaInicioActividades, string $domicilio , string $razonSocial , string $nombreFantasia,
+    string $clienteNombre , string $clienteDomicilio, array $detalle,
+    string $clienteEmail, string $asunto, string $cuerpo)
+{
+    if ($tipo == "FA") {
+        $tipoComp = "FACTURA";
+    } else {
+        $tipoComp = "NOTA DE CREDITO";
+    }
+        
+    $F =  $this->getFactElect($crt,$key,$cuitEmisor,$tipoIvaEmisor,$ptoVta,$clienteTipoIva,$clienteCuit,$total,$neto,$iva);
+
+    if ($F['Resultado'] != "A") {
+        throw new Exception("Error al generar la factura electronica: " . $F['Resultado']);
+    }
+    $letra = $F['letra'];
+    $codComp = $F['TipoComp'];
+    $copia = "ORIGINAL";
+    $nroComp = $F['Nro'];
+    $puntoVta = $F['PtoVta'];
+    $cae = $F['CAE'];
+    $vtoCae = $F['Vto'];
+
+
+    $pdf =  $this->getPdf($tipoComp,$letra,$codComp,$copia,$nroComp,$puntoVta,$fecha,
+    $cuitEmisor,$tipoIvaEmisor,$emisor ,$ingresosBrutos,$fechaInicioActividades,$domicilio ,$razonSocial ,$nombreFantasia,
+    $clienteTipoIva,$clienteCuit,$clienteNombre , $clienteDomicilio,$cae,$vtoCae, $neto, $iva, $total, $detalle);
+    
+    if ($clienteEmail <> '') {
+        if ($this->enviarMail($pdf,$clienteEmail,$asunto,$cuerpo) ) 
+        {
+            $F['Mail'] = 'Mail enviado a '.$clienteEmail;
+        }
+    }
+    return $F;
 }
 
-function getPdf(){
- 
+function getQR(string $text){ 
+  
+    QRcode::png($text, 'testQR.png', 'L', 4, 2);
+    QRcode::png($text);
+}
+
+function getPdf(string $tipoComp,string $letra,string $codComp,string $copia,string $nroComp,string $puntoVta,string $fecha,
+    string $cuitEmisor,string $tipoIvaEmisor,string $emisor ,string $ingresosBrutos,string $fechaInicioActividades,string $domicilio ,string $razonSocial ,string $nombreFantasia,
+    string $clienteTipoIva,string $clienteCuit,string $clienteNombre , string $clienteDomicilio,string $cae,string $vtoCae,
+    float $neto, float $iva, float $total, array $detalle){
+    if ($tipoIvaEmisor == "RI") {
+        $tipoIvaEmisor = "IVA Responsable Inscripto";
+    } elseif ($tipoIvaEmisor == "MT") {
+        $tipoIvaEmisor = "Monotributista";
+    } else {
+        $tipoIvaEmisor = "Exento";
+    }   
+    if ($clienteTipoIva == "RI") {
+        $clienteTipoIva = "IVA Responsable Inscripto";
+    } elseif ($clienteTipoIva == "MT") {
+        $clienteTipoIva = "Monotributista";
+    } elseif ($clienteTipoIva == "CF") {
+        $clienteTipoIva = "Consumidor Final";
+    } else {
+        $clienteTipoIva = "Exento";
+    }
 
     $pdf = new FPDF( 'P', 'mm', 'A4' );
     $pdf->SetAutoPagebreak(False);
     $pdf->SetMargins(0,0,0);
     $pdf->AddPage();
-
-    // Datos Factura
-    $tipoComp = "FACTURA";
-    $letra = "A";
-    $codComp = "COD. 11";
-    $copia = "ORIGINAL";
-    $numFact = "00000001";
-    $puntoVta = "0001";
-    $fecha = "01/01/2024";
-    // Datos Emisor
-    $emisor = "Javier Martinez";
-    $cuitEmisor = "20-12345678-9";
-    $tipoIvaEmisor = "IVA Responsable Inscripto";
-    $ingresosBrutos = "123-456789-0";
-    $fechaInicioActividades = "01/01/2020";
-    $domicilio = "Calle Falsa 123";
-    $razonSocial = "Cliente de Prueba S.A.";
-    $nombreFantasia = "RestoSoft";
-    // Datos Cliente
-    $clienteNombre = "Cliente de Prueba S.A.";
-    $clienteDomicilio = "Calle Falsa 456";
-    $clienteCuit = "20-98765432-1";
-    $clienteTipoIva = "IVA Responsable Inscripto";
-    // Datos Totales
-    $neto = "1000.00";
-    $iva = "210.00";
-    $total = "1210.00";
-    // Datos Certificado
-    $cae = "12345678901234";
-    $vtoCae = "01/02/2024";
-    // Detalle
-    $detalle = array(
-        array("codigo" => "001", "descripcion" => "Abono Abril 2025", "cantidad" => "2", "unidad" => "unidades", "precioUnitario" => "500.00", "bonificacion" => "0", "importeBonificacion" => "0.00", "subtotal" => "1000.00"),
-        array("codigo" => "002", "descripcion" => "1er Cuatrimestre 2026 Fact Elect", "cantidad" => "1", "unidad" => "unidades", "precioUnitario" => "210.00", "bonificacion" => "0", "importeBonificacion" => "0.00", "subtotal" => "210.00"),
-    );
-
-    //$pdf->SetLineWidth(0.1); $pdf->SetFillColor(192); $pdf->Rect(120, 15, 85, 8, "DF");
-
     $pdf->Line(5, 8, 205, 8);
     $pdf->Line(5, 18, 205, 18);
     $pdf->Line(95, 18, 95, 32);
@@ -75,10 +95,10 @@ function getPdf(){
     // Lado Izquierdo
 
     $pdf->SetXY( 100, 20 ); $pdf->SetFont( "Arial", "B", 18 ); $pdf->Cell( 66, 8, $letra, 0, 0, 'L');
-    $pdf->SetXY( 98, 25 ); $pdf->SetFont( "Arial", "B", 6 ); $pdf->Cell( 66, 8, $codComp, 0, 0, 'L');
+    $pdf->SetXY( 98, 25 ); $pdf->SetFont( "Arial", "B", 6 ); $pdf->Cell( 66, 8, 'Cod. '.$codComp, 0, 0, 'L');
     $pdf->SetXY( 120, 20 ); $pdf->SetFont( "Arial", "B", 18 ); $pdf->Cell( 85, 8, $tipoComp, 0, 0, 'L');
     $pdf->SetXY( 120, 30 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Punto de Venta: '.$puntoVta, 0, 0, 'L');
-    $pdf->SetXY( 160, 30 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Comp. Nro. '.$numFact, 0, 0, 'L');
+    $pdf->SetXY( 160, 30 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Comp. Nro. '.$nroComp, 0, 0, 'L');
     $pdf->SetXY( 120, 35 ); $pdf->SetFont( "Arial", "B", 8 ); $pdf->Cell( 85, 8, 'Fecha: ' . $fecha, 0, 0, 'L');
 
     $pdf->SetXY( 120, 45 ); $pdf->SetFont( "Arial", "", 8 ); $pdf->Cell( 85, 8, 'CUIT: '.$cuitEmisor, 0, 0, 'L');
@@ -154,19 +174,19 @@ function getPdf(){
     $pdf->SetXY( 128, 258 ); $pdf->SetFont( "Arial", "B", 9 ); $pdf->Cell( 85, 8,  "Fecha Vencimiento CAE: ".$vtoCae, 0, 0, 'L');
     
     // Generacion del QR
-    $qrClave = '{"ver":1,"fecha": "'.$fecha.'","cuit":"'.$cuitEmisor.'","ptoVta":'.$puntoVta.',"tipoCmp":'.$codComp.',"nroCmp":'.$numFact.',"importe":'.$total.',
-"moneda":"PES","ctz":1,"tipoDocRec":99,"nroDocRec":0,"tipoCodAut":"E","codAut":'.$cae.'}';
+    $qrClave = '{"ver":1,"fecha": "'.$fecha.'","cuit":"'.$cuitEmisor.'","ptoVta":'.$puntoVta.',"tipoCmp":'.$codComp.
+',"nroCmp":'.$nroComp.',"importe":'.$total.',"moneda":"PES","ctz":1,"tipoDocRec":99,"nroDocRec":0,"tipoCodAut":"E","codAut":'.$cae.'}';
     $qrClave =  "https://www.arca.gob.ar/fe/qr/?p=".base64_encode($qrClave);
     QRcode::png($qrClave, 'QR.png', 'L', 4, 2);
     $pdf->Image('QR.png', 10, 252, 35, 35);
 
     //$pdf->SetXY( 10, 150 ); $pdf->SetFont( "Arial", "B", 4); $pdf->Cell( 85, 8, $qrClave, 0, 0, 'L');
-
-    $pdf->Output('F','factura.pdf');
-    return "factura.pdf";
+    $salida = 'facturas/fe_'.$cuitEmisor.'_'.$codComp.'_'.$puntoVta.'_'.$nroComp.'.pdf';
+    $pdf->Output('F',$salida);
+    return $salida;
 }
 
-function factElect(string $crt,string $key,string $cuitEmisor,string $tipoIvaEmisor,string $ptoVta,string $tipoIvaReceptor,string $cuitReceptor,
+function getFactElect(string $crt,string $key,string $cuitEmisor,string $tipoIvaEmisor,string $ptoVta,string $clienteTipoIva,string $clienteCuit,
     float $total, float $neto, float $iva)
 {
 # Ejemplo de Uso de Interface COM con Web Services AFIP (PyAfipWs) para PHP
@@ -241,33 +261,47 @@ try {
     // Letra B : 6 Factura - 7 Nota de Débito - 8 Nota de Crédito
     // Letra C : 11 Factura - 12 Nota de Débito - 13 Nota de Crédito
     if ($tipoIvaEmisor == "RI") {
-        if ($tipoIvaReceptor == "RI" ) {
+        if ($clienteTipoIva == "RI" ) {
+            $letra = "A";
             $tipo_cbte = 1;
             $tipo_doc = 80;                 
-            $nro_doc = $cuitReceptor; 
-        } else {
+            $nro_doc = $clienteCuit; 
+        } elseif ($clienteTipoIva == "MT" ) {
+            $letra = "A";
             $tipo_cbte = 6;
-            if ($cuitReceptor == "0") {
+            if ($clienteCuit == "0") {
                 $tipo_doc = 99;
                 $nro_doc = "0";
             } else {
                 $tipo_doc = 96;
-                $nro_doc = $cuitReceptor;
+                $nro_doc = $clienteCuit;
+            }  
+        } else {
+            $letra = "B";
+            $tipo_cbte = 6;
+            if ($clienteCuit == "0") {
+                $tipo_doc = 99;
+                $nro_doc = "0";
+            } else {
+                $tipo_doc = 96;
+                $nro_doc = $clienteCuit;
             }  
         }
     	 
     } elseif ($tipoIvaEmisor == "MT") {
         $tipo_cbte = 11;
-        if ($tipoIvaReceptor == "RI" ) {
+        if ($clienteTipoIva == "RI" ) {
+            $letra = "C";
             $tipo_doc = 80;                 
-            $nro_doc = $cuitReceptor;
+            $nro_doc = $clienteCuit;
         } else {
-            if ($cuitReceptor == "0") {
+            $letra = "C";
+            if ($clienteCuit == "0") {
                 $tipo_doc = 99;
                 $nro_doc = "0";
             } else {
                 $tipo_doc = 96;
-                $nro_doc = $cuitReceptor;
+                $nro_doc = $clienteCuit;
             }
         }
     }    
@@ -422,9 +456,11 @@ try {
 		$mensaje = "Se asignó CAE pero con advertencias. Motivos: $WSFEv1->Obs";
 	} 
 
-   $data = array(); 
-   $item = array (
+
+   $R = array (
             'Resultado' => $WSFEv1->Resultado,
+            'letra' => $letra,
+            'PtoVta' => $punto_vta,
             'Nro' => $WSFEv1->CbteNro, 
             'CAE' => $cae, 
             'Vto' => $WSFEv1->Vencimiento, 
@@ -434,12 +470,10 @@ try {
             'Reproceso' => $WSFEv1->Reproceso,
             'ErrMsg' => $WSFEv1->ErrMsg,
             'Mensaje' =>  $mensaje ,
+            "Mail" => ''
      );
-     array_push($data,$item);
 
-    $R = json_encode($data);
-
-    file_put_contents("resultado.json", $R);
+    file_put_contents("resultado.txt", print_r($R, true));
 
 } catch (Exception $e) {
 	echo 'Excepción: ',  $e->getMessage(), "\n";
@@ -455,19 +489,62 @@ try {
         $excepcion =  $WSFEv1->Excepcion;
         $traceback =  $WSFEv1->Traceback;
 	}
-    $R = "[ 
+    $R =array ( 
             'Excepcion' => $excepcion,
             'Traceback' => $traceback
-        ]";
+    );
 }
 if (isset($WSFEv1)) {
     # almacenar la respuesta para depuración / testing
     # (guardar en un directorio no descargable al subir a un servidor web)
     file_put_contents("request.xml", $WSFEv1->XmlRequest);
     file_put_contents("response.xml", $WSFEv1->XmlResponse);
+
+} // fin if isset WSFEv1   
+return $R; 
 }
-return $R;
-} // fin function factElect()
+
+
+function enviarMail(string $pdf, string $clienteEmail, string $asunto, string $cuerpo)
+{
+    
+
+
+$mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
+// admin@restosoft.com.ar
+// Rest0.s0ft
+
+try {
+    // Configuración del servidor SMTP
+    $mail->isSMTP();
+    $mail->Host = 'mail.restosoft.com.ar'; // Tu servidor SMTP
+    $mail->SMTPAuth = true;
+    $mail->Username = 'admin@restosoft.com.ar'; // Tu usuario SMTP
+    $mail->Password = 'Rest0.s0ft'; // Tu contraseña SMTP
+    $mail->SMTPSecure = "ssl";
+    $mail->Port = 465; // O el puerto de tu servidor SMTP
+
+    // Destinatarios
+    $mail->setFrom('admin@restosoft.com.ar', 'RestoSoft Administracion');
+    $mail->addAddress($clienteEmail);
+    $mail->AddAttachment($pdf); 
+    //$mail->addCC('otro_remitente@example.com');
+
+    // Contenido
+    $mail->isHTML(true);
+    $mail->Subject = $asunto;
+    $mail->Body    = $cuerpo;
+
+    $mail->send();
+    //echo 'El mensaje se ha enviado';
+    return true;
+} catch (Exception $e) {
+    //echo "El mensaje no pudo ser enviado. Error: {$mail->ErrorInfo}";
+    return false;
+}
+}
 
 } // fin class factElect
+
 ?>

@@ -35,9 +35,15 @@ include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "libs" . DIRECTORY_SEPARA
 include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "libs" . DIRECTORY_SEPARATOR . "funciones.php"); // esta libreria es la que se encarga de conectar a la base de datos y ejecutar los stored procedures
 include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "fpdf" . DIRECTORY_SEPARATOR . "fpdf.php"); // esta libreria es la que se encarga de llamar a los servicios
 include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "phpqrcode" . DIRECTORY_SEPARATOR . "qrlib.php"); // esta libreria es la que se encarga de llamar a los servicios
-  
-date_default_timezone_set("America/Buenos_Aires"); // se establece la zona horaria de Buenos Aires
+/*
+include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "phpMailer" . DIRECTORY_SEPARATOR . "PHPMailer.php"); // esta libreria es la que se encarga de llamar a los servicios
+include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "phpMailer" . DIRECTORY_SEPARATOR . "Exception.php"); // esta libreria es la que se encarga de llamar a los servicios
+include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . "phpMailer" . DIRECTORY_SEPARATOR . "SMTP.php"); // esta libreria es la que se encarga de llamar a los servicios
+*/
 
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR .'/PHPMailer/PHPMailer.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR .'/PHPMailer/SMTP.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR .'/PHPMailer/Exception.php';
 // esta api siempre responde en formato JSON
 header('Content-Type: application/json');
 
